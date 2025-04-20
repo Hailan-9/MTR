@@ -17,7 +17,7 @@ class MotionTransformer(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.model_cfg = config
-
+        # NOTE 分别是环境编码和运动解码
         self.context_encoder = build_context_encoder(self.model_cfg.CONTEXT_ENCODER)
         self.motion_decoder = build_motion_decoder(
             in_channels=self.context_encoder.num_out_channels,

@@ -83,6 +83,7 @@ class MTRDecoder(nn.Module):
         self.obj_pos_encoding_layer = common_layers.build_mlps(
             c_in=2, mlp_channels=[hidden_dim, hidden_dim, hidden_dim], ret_before_act=True, without_norm=True
         )
+        # GMM
         self.dense_future_head = common_layers.build_mlps(
             c_in=hidden_dim * 2,
             mlp_channels=[hidden_dim, hidden_dim, num_future_frames * 7], ret_before_act=True
@@ -145,7 +146,7 @@ class MTRDecoder(nn.Module):
         motion_cls_heads = nn.ModuleList([copy.deepcopy(motion_cls_head) for _ in range(num_decoder_layers)])
         motion_vel_heads = None 
         return motion_reg_heads, motion_cls_heads, motion_vel_heads
-
+    # NOTE GMM
     def apply_dense_future_prediction(self, obj_feature, obj_mask, obj_pos):
         num_center_objects, num_objects, _ = obj_feature.shape
 
@@ -442,7 +443,7 @@ class MTRDecoder(nn.Module):
         pred_dense_trajs = self.forward_ret_dict['pred_dense_trajs']  # (num_center_objects, num_objects, num_future_frames, 7)
         assert pred_dense_trajs.shape[-1] == 7
         assert obj_trajs_future_state.shape[-1] == 4
-
+        # NOTE 预测的高斯混合模型轨迹
         pred_dense_trajs_gmm, pred_dense_trajs_vel = pred_dense_trajs[:, :, :, 0:5], pred_dense_trajs[:, :, :, 5:7]
 
         loss_reg_vel = F.l1_loss(pred_dense_trajs_vel, obj_trajs_future_state[:, :, :, 2:4], reduction='none')
